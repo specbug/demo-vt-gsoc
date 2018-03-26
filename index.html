@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type = "text/javascript" src = "https://d3js.org/d3.v4.min.js"></script>
+    <style> 
+            .line {
+               fill: none;
+               stroke: blue;
+               stroke-width: 2px;
+            }
+         </style>
+</head>
+<body>
+    <div>
+    <select id="newYear" onclick="changeDays()">
+      </select>
+
+      <select id="newMonth" onclick="changeDays()">
+      </select>
+
+      <select id="newDay">
+      </select>
+      <button onclick="getGraph()">Submit</button>
+    </div>
+</body>
+<script type="text/javascript">
+    var y = document.getElementById('newYear');
+    for(let i=1976;i<2002;i++) {
+        y.innerHTML += "<option>"+i+"</option>";
+    }
+
+    var m = document.getElementById('newMonth');
+    for(let i=1;i<13;i++) {
+        m.innerHTML += "<option>"+i+"</option>";
+    }
+
+    var d = document.getElementById('newDay');
+    function changeDays() {
+    d.innerHTML = "";
+    var m2 = document.getElementById('newMonth');
+    var y2 = document.getElementById('newYear');
+    var m1 = m2.options[m2.selectedIndex].text;
+    var y1 = y2.options[y2.selectedIndex].text;
+    if(m1%2==0) {
+        if(m1>=8) {
+            for(let md=1;md<=31;md++) {
+                d.innerHTML += "<option>"+md+"</option>";
+            }
+        }
+        else if(m1==2) {
+            if ( y1%400 == 0) {
+                for(let i=1;i<31-1;i++) {
+                    d.innerHTML += "<option>"+i+"</option>";
+                }
+            } 
+            else if ( y1%100 == 0) {
+                for(let i=1;i<31-2;i++) {
+                    d.innerHTML += "<option>"+i+"</option>";
+                }
+            } 
+            else if ( y1%4 == 0 ) {
+                for(let i=1;i<31-1;i++) {
+                    d.innerHTML += "<option>"+i+"</option>";
+                }
+            } 
+            else {
+                for(let i=1;i<31-2;i++) {
+                    d.innerHTML += "<option>"+i+"</option>";
+                }
+            } 
+            
+        }
+        else {
+        for(let i=1;i<31;i++) {
+                    d.innerHTML += "<option>"+i+"</option>";
+                }
+        }
+    }
+
+    else {
+        if(m1>=9) {
+            for(let i=1;i<31;i++) {
+                    d.innerHTML += "<option>"+i+"</option>";
+                }
+        }
+        else {
+        for(let i=1;i<=31;i++) {
+                    d.innerHTML += "<option>"+i+"</option>";
+                }
+        }
+    }
+    }
+
+     var margin = {top: 20, right: 20, bottom: 30, left: 50},
+         width = 960 - margin.left - margin.right,
+         height = 500 - margin.top - margin.bottom;
+
+         // set the ranges
+         var x = d3.scaleLinear().range([0, width]);
+         var y = d3.scaleLinear().range([height, 0]);
+
+         // define the line
+         var valueline = d3.line()
+            .x(function(d) { return x(d.year); })
+            .y(function(d) { return y(d.population); });
+
+         // append the svg obgect to the body of the page
+         // appends a 'group' element to 'svg'
+         // moves the 'group' element to the top left margin
+         var svg = d3.select("body").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g").attr("transform",
+               "translate(" + margin.left + "," + margin.top + ")");
+
+         // Get the data
+         d3.csv("data.csv", function(error, data) {
+            if (error) throw error;
+            // format the data
+            data.forEach(function(d) {
+               d.year = +d.year;
+               d.population = +d.population;
+            });
+
+            // Scale the range of the data
+            x.domain(d3.extent(data, function(d) { return d.year; }));
+            y.domain(d3.extent(data, function(d) { return d.population; }));
+
+            // Add the valueline path.
+            svg.append("path")
+               .data([data])
+               .attr("class", "line")
+               .attr("d", valueline);
+
+            // Add the X Axis
+            svg.append("g")
+               .attr("transform", "translate(0," + height + ")")
+               .call(d3.axisBottom(x));
+
+            // Add the Y Axis
+            svg.append("g")
+            
+               .call(d3.axisLeft(y));
+         });
+
+         function getGraph() {
+            var dg1 = document.getElementById('newDay');
+            var mg1 = document.getElementById('newMonth');
+            var yg1 = document.getElementById('newYear');
+
+            var dg11 = dg1.options[dg1.selectedIndex].text;
+            var mg11 = mg1.options[mg1.selectedIndex].text;
+            var yg11 = yg1.options[yg1.selectedIndex].text;
+            yg11 = yg11.slice(2, yg11.length);
+            if(mg11<10) {
+                mg11 = '0'+mg11;
+            }
+            if(dg11<10) {
+                dg11 = '0'+dg11;
+            }
+            window.location.href = 'http://localhost:5000/'+yg11+'/'+mg11+'/'+dg11;
+         }
+</script>
+</html>
